@@ -24,4 +24,42 @@ export class EquipmentController {
       });
     }
   }
+  // Buscar TODOS os equipamentos
+  static async getAll(req: Request, res: Response): Promise<any> {
+    try {
+      // O método .find() sem filtros traz todos os documentos da coleção
+      const equipments = await Equipment.find();
+      
+      res.status(200).json(equipments);
+    } catch (error: any) {
+      res.status(500).json({
+        message: 'Erro interno ao buscar equipamentos',
+        error: error.message
+      });
+    }
+  }
+
+  // Buscar UM equipamento específico pelo ID
+  static async getById(req: Request, res: Response): Promise<any> {
+    try {
+      // Extraímos o 'id' dos parâmetros da URL (ex: /api/equipments/12345)
+      const { id } = req.params;
+
+      const equipment = await Equipment.findById(id);
+
+      // Se o Mongoose não achar nada, ele retorna null
+      if (!equipment) {
+        res.status(404).json({ message: 'Equipamento não encontrado.' });
+        return; // O return impede que o código continue e tente enviar outra resposta
+      }
+
+      res.status(200).json(equipment);
+    } catch (error: any) {
+      // Se o ID enviado não for um ObjectId válido do MongoDB, ele cai no catch
+      res.status(400).json({
+        message: 'ID inválido ou erro na busca.',
+        error: error.message
+      });
+    }
+  }
 }
